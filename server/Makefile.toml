@@ -1,0 +1,62 @@
+[config]
+default_to_workspace = false
+
+[tasks.check]
+command = "cargo"
+args = ["check"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+
+[tasks.fmt]
+command = "cargo"
+args = ["fmt"]
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy"]
+
+[tasks.sort]
+command = "cargo"
+args = ["sort", "-w"]
+
+[tasks.udeps]
+command = "cargo"
+args = ["udeps"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+
+[tasks.run_db]
+script = '''
+sudo docker compose up --wait postgres
+'''
+
+[tasks.stop_db]
+script = '''
+sudo docker compose stop postgres
+'''
+
+[tasks.run_cache]
+script = '''
+sudo docker compose up --wait redis
+'''
+
+[tasks.stop_cache]
+script = '''
+sudo docker compose stop redis
+'''
+
+[tasks.total]
+dependencies = ["run_db","check" ,"build", "fmt", "clippy", "sort", "udeps", "stop_db"]
+
+[tasks.partial]
+dependencies = ["run_db","build", "fmt", "clippy", "stop_db"]
+
+[tasks.testing]
+dependencies = ["run_db","run_cache", "test", "stop_cache", "stop_db"]
+
+[tasks.default]
+alias = "total"

@@ -1,0 +1,3 @@
+[workspace]
+author = "Bartosz Nowak <bartoszn337@proton.me>"
+members = ["cache", "database", "worker"]

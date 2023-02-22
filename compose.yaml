@@ -1,0 +1,57 @@
+services:
+  postgres:
+    container_name: catsio-postgres
+    hostname: catsio-postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=catsiouser
+      - POSTGRES_PASSWORD=catsiopasswd
+      - POSTGRES_DB=catsio
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
+  redis:
+    container_name: catsio-redis
+    hostname: catsio-redis
+    image: redis/redis-stack
+    ports:
+      - 6379:6379
+      - 8001:8001
+  
+  server:
+    container_name: catsio-server
+    hostname: catsio-server
+    build:
+      context: server
+    networks:
+      - catsio-network
+    depends_on:
+      - postgres
+      - redis
+  
+  web:
+    container_name: catsio-web
+    hostname: catsio-web
+    build:
+      context: web
+    networks:
+      - catsio-network
+
+  proxy:
+    container_name: catsio-proxy
+    hostname: catsio-proxy
+    build:
+      context: proxy
+    depends_on:
+      - web
+      - server
+    networks:
+      - catsio-network
+    ports:
+      - "3000:80"
+
+networks:
+  catsio-network:
+    driver: bridge
